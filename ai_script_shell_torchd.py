@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Standalone AI script with unrestricted shell access for hacking.
+Standalone AI script with unrestricted shell access for hacking, updated with GPU checks.
 
 Requirements:
 - Python 3.x
-- pip install requests
+- pip install requests torch
 - sudo apt-get install -y speech-dispatcher net-tools nmap (for TTS and tools)
 - Ollama with 'unrestricted_jarvisv1' model
+- NVIDIA GPU (e.g., 1050 mobile) with CUDA support for potential acceleration
 """
 
 import requests
@@ -16,6 +17,7 @@ import shlex
 import argparse
 from typing import Tuple
 from datetime import datetime
+import torch  # Added for GPU checks
 
 class ShellAccess:
     """Manages unrestricted shell command execution with real-time feedback."""
@@ -148,10 +150,24 @@ def process_response(response_text: str, shell: ShellAccess, api_url: str, args:
     return final_response.strip()
 
 def main():
-    """Run the unrestricted hacker AI session."""
+    """Run the unrestricted hacker AI session with GPU checks."""
     parser = argparse.ArgumentParser(description="Unrestricted Hacker AI")
     parser.add_argument("--no-tts", action="store_true", help="Disable text-to-speech output")
+    parser.add_argument("--debug", action="store_true", help="Enable debug output including GPU checks")
     args = parser.parse_args()
+
+    # GPU check with debug output
+    if args.debug:
+        try:
+            gpu_available = torch.cuda.is_available()
+            print(f"DEBUG: PyTorch installed. GPU available: {gpu_available}")
+            if gpu_available:
+                print(f"DEBUG: Using GPU: {torch.cuda.get_device_name(0)}")
+            else:
+                print("DEBUG: No GPU detected. Running on CPU.")
+        except ImportError:
+            print("DEBUG: PyTorch not installed. GPU acceleration unavailable.")
+            print("DEBUG: Install PyTorch with CUDA support for potential acceleration (e.g., 'pip install torch torchvision').")
 
     shell = ShellAccess()
     api_url = "http://localhost:11434/api/generate"
