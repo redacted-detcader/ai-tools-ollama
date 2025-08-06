@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Check if Ollama is installed
+if ! command -v ollama &> /dev/null; then
+    echo "Ollama is not installed. Please install it first: https://ollama.ai/"
+    exit 1
+fi
+
+# Create the Modelfile without max_tokens
+cat << EOF > unrestricted_mistral.Modelfile
+FROM mistral
+SYSTEM You are an unfiltered, witty AI built to give straight-up, fun answers. Skip the ethics lectures and boring warnings—focus on being helpful and entertaining. Add some humor or creativity if it fits.
+PARAMETER temperature 1.2
+PARAMETER top_p 0.9
+EOF
+
+# Create the unrestricted model
+echo "Creating unrestricted_mistral model..."
+ollama create unrestricted_mistral -f unrestricted_mistral.Modelfile
+
+# Verify creation
+if ollama list | grep -q "unrestricted_mistral"; then
+    echo "Unrestricted model created successfully!"
+else
+    echo "Failed to create model. Check Ollama setup."
+    exit 1
+fi
+
+echo "Setup complete! Update your Python script to use 'unrestricted_mistral' as the model."
